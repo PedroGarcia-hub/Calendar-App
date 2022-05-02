@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
+import Swal from 'sweetalert2';
 
 /**
  * Custom Styles for Calendar Modal
@@ -31,6 +32,8 @@ export const CalendarModal = () => {
   const [dateStart, setDateStart] = useState(now.toDate());
   const [dateEnd, setDateEnd] = useState(nowPlus1.toDate());
 
+  const [titleValid, setTitleValid] = useState(true);
+
   //   Form's values
   const [formValues, setFormValues] = useState({
     title: 'Evento',
@@ -39,21 +42,23 @@ export const CalendarModal = () => {
     end: nowPlus1.toDate(),
   });
 
-  const { title, notes } = formValues;
+  const { title, notes, start, end } = formValues;
 
   /**
    * function to handle title and notes changes
-   * @param {*} param target event input
+   * @param {event} param target event input
    */
   const handleInputChange = ({ target }) => {
     setFormValues({ ...formValues, [target.name]: target.value });
   };
 
-  const closeModal = () => {};
+  const closeModal = () => {
+    // TODO: Close modal
+  };
 
   /**
    * function to change the start date
-   * @param {*} e Event
+   * @param {event} e Event
    */
   const handleStartDateChange = (e) => {
     setDateStart(e);
@@ -62,7 +67,7 @@ export const CalendarModal = () => {
 
   /**
    * function to change the end date
-   * @param {*} e Event
+   * @param {event} e Event
    */
   const handleEndDateChange = (e) => {
     setDateEnd(e);
@@ -71,11 +76,26 @@ export const CalendarModal = () => {
 
   /**
    * function to handle the submit
-   * @param {*} e Event
+   * @param {event} e Event
    */
   const handleSubmitForm = (e) => {
     e.preventDefault();
-    console.log(formValues);
+    const momentStart = moment(start);
+    const momentEnd = moment(end);
+
+    if (momentStart.isSameOrAfter(momentEnd)) {
+      return Swal.fire(
+        'Error',
+        'La fecha final debe ser mayor a la fecha de inicio',
+        'error'
+      );
+    } else if (title.trim().length < 2) {
+      return setTitleValid(false);
+    } else {
+      // TODO: BBDD request
+      setTitleValid(true);
+      closeModal();
+    }
   };
 
   return (
@@ -113,7 +133,7 @@ export const CalendarModal = () => {
           <label>Titulo y notas</label>
           <input
             type="text"
-            className="form-control"
+            className={`form-control ${!titleValid && 'is-invalid'}`}
             placeholder="Título del evento"
             name="title"
             autoComplete="off"
