@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from 'react-modal';
 import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import { uiCloseModal } from '../../actions/ui';
-import { eventAddNew } from '../../actions/events';
+import { eventAddNew, eventClearActiveEvent } from '../../actions/events';
 
 /**
  * Custom Styles for Calendar Modal
@@ -26,12 +26,20 @@ Modal.setAppElement('#root');
 const now = moment().minutes(0).second(0).add(1, 'hours');
 const nowPlus1 = now.clone().add(1, 'hours');
 
+const initEvent = {
+  title: '',
+  notes: '',
+  start: now.toDate(),
+  end: nowPlus1.toDate(),
+};
+
 /**
  * Component for a Calendar Modal to introduce new events
  * @returns fragment JSX
  */
 export const CalendarModal = () => {
   const { modalOpen } = useSelector((state) => state.ui);
+  const { activeEvent } = useSelector((state) => state.calendar);
   const dispatch = useDispatch();
 
   // useState hooks to handle de start and end date
@@ -41,14 +49,16 @@ export const CalendarModal = () => {
   const [titleValid, setTitleValid] = useState(true);
 
   //   Form's values
-  const [formValues, setFormValues] = useState({
-    title: 'Evento',
-    notes: '',
-    start: now.toDate(),
-    end: nowPlus1.toDate(),
-  });
+  const [formValues, setFormValues] = useState(initEvent);
 
   const { title, notes, start, end } = formValues;
+
+  // hook to select FormValues of a event when doubleclick on that event
+  useEffect(() => {
+    if (activeEvent) {
+      setFormValues(activeEvent);
+    }
+  }, [activeEvent, setFormValues]);
 
   /**
    * function to handle title and notes changes
@@ -58,8 +68,13 @@ export const CalendarModal = () => {
     setFormValues({ ...formValues, [target.name]: target.value });
   };
 
+  /**
+   * Function to hide and clean form when modal is closed
+   */
   const closeModal = () => {
     dispatch(uiCloseModal());
+    dispatch(eventClearActiveEvent());
+    setFormValues(initEvent);
   };
 
   /**
