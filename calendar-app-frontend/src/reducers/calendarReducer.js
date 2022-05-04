@@ -17,12 +17,24 @@ const initialState = {
   activeEvent: null,
 };
 
+/**
+ * Function to handle the events by a reducer
+ * @param {*} state
+ * @param {*} action
+ * @returns
+ */
 export const calendarReducer = (state = initialState, action) => {
   switch (action.type) {
     case types.eventSetActive:
       return {
         ...state,
         activeEvent: action.payload,
+      };
+
+    case types.eventAddNew:
+      return {
+        ...state,
+        events: [...state.events, action.payload],
       };
 
     default:

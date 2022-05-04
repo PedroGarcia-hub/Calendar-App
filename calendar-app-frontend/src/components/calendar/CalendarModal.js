@@ -5,6 +5,7 @@ import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import { uiCloseModal } from '../../actions/ui';
+import { eventAddNew } from '../../actions/events';
 
 /**
  * Custom Styles for Calendar Modal
@@ -80,7 +81,7 @@ export const CalendarModal = () => {
   };
 
   /**
-   * function to handle the submit
+   * function to handle the submit and create new event
    * @param {event} e Event
    */
   const handleSubmitForm = (e) => {
@@ -98,6 +99,13 @@ export const CalendarModal = () => {
       return setTitleValid(false);
     } else {
       // TODO: BBDD request
+      dispatch(
+        eventAddNew({
+          ...formValues,
+          id: new Date().getTime(),
+          user: { _id: '123', name: 'Juancito' },
+        })
+      );
       setTitleValid(true);
       closeModal();
     }
