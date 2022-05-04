@@ -5,7 +5,11 @@ import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import { uiCloseModal } from '../../actions/ui';
-import { eventAddNew, eventClearActiveEvent } from '../../actions/events';
+import {
+  eventAddNew,
+  eventClearActiveEvent,
+  eventUpdated,
+} from '../../actions/events';
 
 /**
  * Custom Styles for Calendar Modal
@@ -112,8 +116,9 @@ export const CalendarModal = () => {
       );
     } else if (title.trim().length < 2) {
       return setTitleValid(false);
+    } else if (activeEvent) {
+      dispatch(eventUpdated(formValues));
     } else {
-      // TODO: BBDD request
       dispatch(
         eventAddNew({
           ...formValues,
@@ -121,9 +126,9 @@ export const CalendarModal = () => {
           user: { _id: '123', name: 'Juancito' },
         })
       );
-      setTitleValid(true);
-      closeModal();
     }
+    setTitleValid(true);
+    closeModal();
   };
 
   return (
