@@ -57,10 +57,12 @@ export const CalendarModal = () => {
 
   const { title, notes, start, end } = formValues;
 
-  // hook to select FormValues of a event when doubleclick on that event
+  // hook to clean or keep the form values of the select event
   useEffect(() => {
     if (activeEvent) {
       setFormValues(activeEvent);
+    } else {
+      setFormValues(initEvent);
     }
   }, [activeEvent, setFormValues]);
 
