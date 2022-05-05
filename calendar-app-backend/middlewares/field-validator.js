@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
  * @param {*} req
  * @param {*} res
  * @param {*} next
- * @returns HTTP Responso
+ * @returns HTTP Response
  */
 const validateField = (req, res = response, next) => {
   // Error management and validation
