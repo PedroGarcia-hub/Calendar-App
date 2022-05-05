@@ -1,25 +1,30 @@
 const { response } = require('express');
+const User = require('../models/User');
 
 /**
- * Function for /new to create user
+ * Function for /new endpoint to create user
  * @param {Request} req
  * @param {Response} res
  * @returns Server response
  */
-const createUser = (req, res = response) => {
-  const { name, email, password } = req.body;
-
-  res.status(201).json({
-    ok: true,
-    msg: 'register',
-    name,
-    email,
-    password,
-  });
+const createUser = async (req, res = response) => {
+  try {
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).json({
+      ok: true,
+      msg: 'register',
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      msg: 'Can not create user',
+    });
+  }
 };
 
 /**
- * Function for / to login user
+ * Function for / endpoint to login user
  * @param {Request} req
  * @param {Response} res
  * @returns Server response
@@ -36,7 +41,7 @@ const loginUser = (req, res = response) => {
 };
 
 /**
- * Enpoint to renew token
+ * Function for /renew endpoint to renew session token
  * @param {Request} req
  * @param {Response} res
  * @returns Server response
