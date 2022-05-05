@@ -1,6 +1,7 @@
 const { response } = require('express');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const { generateJWT } = require('../helpers/jwt');
 
 /**
  * Function for /new endpoint to create user
@@ -27,10 +28,14 @@ const createUser = async (req, res = response) => {
 
     await user.save();
 
+    // Generate Token
+    const token = await generateJWT(user.id, user.name);
+
     res.status(201).json({
       ok: true,
       uid: user.id,
       name: user.name,
+      token,
     });
   } catch (error) {
     res.status(500).json({
@@ -67,10 +72,14 @@ const loginUser = async (req, res = response) => {
       });
     }
 
+    // Generate Token
+    const token = await generateJWT(user.id, user.name);
+
     res.json({
       ok: true,
       uid: user.id,
       name: user.name,
+      token,
     });
   } catch (error) {
     res.status(500).json({
