@@ -9,7 +9,7 @@ const Event = require('../models/Event');
 const getEvents = async (req, res = response) => {
   const events = await Event.find().populate('user', 'name');
 
-  res.json({
+  return res.json({
     ok: true,
     events,
   });
@@ -26,13 +26,13 @@ const createEvent = async (req, res = response) => {
   try {
     event.user = req.uid;
     const savedEvent = await event.save();
-    res.json({
+    return res.json({
       ok: true,
       event: savedEvent,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       msg: 'Error creating the event',
     });
@@ -45,14 +45,14 @@ const createEvent = async (req, res = response) => {
  * @param {Response} res
  */
 const updateEvent = async (req, res = response) => {
-  const eventoId = req.params.id;
+  const eventId = req.params.id;
   const uid = req.uid;
 
   try {
-    const event = await Event.findById(eventoId);
+    const event = await Event.findById(eventId);
 
     if (!event) {
-      res.status(404).json({
+      return res.status(404).json({
         ok: false,
         msg: 'Can not find event',
       });
@@ -63,17 +63,17 @@ const updateEvent = async (req, res = response) => {
       });
     } else {
       const newEvent = { ...req.body, user: uid };
-      const updatedEvent = await Event.findByIdAndUpdate(eventoId, newEvent, {
+      const updatedEvent = await Event.findByIdAndUpdate(eventId, newEvent, {
         new: true,
       });
-      res.json({
+      return res.json({
         ok: true,
         event: updatedEvent,
       });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       msg: 'Something went wrong when update event',
     });
@@ -85,11 +85,37 @@ const updateEvent = async (req, res = response) => {
  * @param {Request} req
  * @param {Response} res
  */
-const deleteEvent = (req, res = response) => {
-  res.json({
-    ok: true,
-    msg: 'deleteEvent',
-  });
+const deleteEvent = async (req, res = response) => {
+  const eventId = req.params.id;
+  const uid = req.uid;
+
+  try {
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'Can not find event',
+      });
+    } else if (event.user.toString() !== uid) {
+      return res.status(401).json({
+        ok: false,
+        msg: 'Can not delete this event',
+      });
+    } else {
+      await Event.findByIdAndDelete(eventId);
+      return res.json({
+        ok: true,
+        msg: 'Event deleted',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Something went wrong when delete event',
+    });
+  }
 };
 
 module.exports = {
