@@ -44,11 +44,40 @@ const createEvent = async (req, res = response) => {
  * @param {Request} req
  * @param {Response} res
  */
-const updateEvent = (req, res = response) => {
-  res.json({
-    ok: true,
-    msg: 'updateEvent',
-  });
+const updateEvent = async (req, res = response) => {
+  const eventoId = req.params.id;
+  const uid = req.uid;
+
+  try {
+    const event = await Event.findById(eventoId);
+
+    if (!event) {
+      res.status(404).json({
+        ok: false,
+        msg: 'Can not find event',
+      });
+    } else if (event.user.toString() !== uid) {
+      return res.status(401).json({
+        ok: false,
+        msg: 'Can not edit this event',
+      });
+    } else {
+      const newEvent = { ...req.body, user: uid };
+      const updatedEvent = await Event.findByIdAndUpdate(eventoId, newEvent, {
+        new: true,
+      });
+      res.json({
+        ok: true,
+        event: updatedEvent,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Something went wrong when update event',
+    });
+  }
 };
 
 /**
