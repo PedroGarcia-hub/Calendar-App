@@ -3,6 +3,9 @@
  */
 const { JWTValidator } = require('../middlewares/jwt-validator');
 const { Router } = require('express');
+const { check } = require('express-validator');
+const { validateField } = require('../middlewares/field-validator');
+const { isDate } = require('../helpers/isDate');
 const {
   getEvents,
   createEvent,
@@ -23,7 +26,16 @@ router.get('/', getEvents);
 /**
  * Create new events endpoint
  */
-router.post('/', createEvent);
+router.post(
+  '/',
+  [
+    check('title', 'Title is required').not().isEmpty(),
+    check('start', 'Start date is required').custom(isDate),
+    check('end', 'End date is required').custom(isDate),
+    validateField,
+  ],
+  createEvent
+);
 
 /**
  * Update event endpoint
