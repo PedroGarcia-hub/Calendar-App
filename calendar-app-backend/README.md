@@ -10,4 +10,4 @@ This app is the backend part for my Calendar App.
 # To run
 
 1. Cd to this folder
-2. Run `npm run start` on your console.
+2. Run `npm start` on your console.
