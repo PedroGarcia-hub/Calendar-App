@@ -66,7 +66,6 @@ export const CalendarScreen = () => {
    * @returns style
    */
   const eventStyleGetter = (event, start, end, isSelected) => {
-    console.log(event, start, end, isSelected);
     const style = {
       backgroundColor: '#367CF7',
       borderRadius: '0px',
