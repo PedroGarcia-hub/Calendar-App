@@ -4,6 +4,8 @@
 
 import { fetchToken } from '../helpers/fetch';
 import { types } from '../types/types';
+import Swal from 'sweetalert2';
+import { prepareEvents } from '../helpers/prepareEvents';
 
 /**
  * Action to fetch the post endpoint to insert a new event into DB
@@ -24,8 +26,9 @@ export const eventStartAddNew = (event) => {
           _id: uid,
           name: name,
         };
-        console.log(event);
         dispatch(eventAddNew(event));
+      } else {
+        Swal.fire('Error', body.msg, 'error');
       }
     } catch (error) {
       console.error(error);
@@ -47,7 +50,29 @@ export const eventClearActiveEvent = () => ({
   type: types.eventClearActiveEvent,
 });
 
-export const eventUpdated = (event) => ({
+/**
+ * Action to fetch the update endpoint
+ * @param {Event} event
+ * @returns
+ */
+export const eventStartUpdate = (event) => {
+  return async (dispatch) => {
+    try {
+      const resp = await fetchToken(`events/${event.id}`, event, 'PUT');
+      const body = await resp.json();
+
+      if (body.ok) {
+        dispatch(eventUpdated(event));
+      } else {
+        Swal.fire('Error', body.msg, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
+const eventUpdated = (event) => ({
   type: types.eventUpdated,
   payload: event,
 });
@@ -63,8 +88,7 @@ export const eventStartLoading = () => {
     try {
       const resp = await fetchToken('events');
       const body = await resp.json();
-
-      const events = body.events;
+      const events = prepareEvents(body.events);
 
       dispatch(eventLoaded(events));
     } catch (error) {
