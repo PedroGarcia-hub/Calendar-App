@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from '../ui/Navbar';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -9,7 +9,11 @@ import { CalendarEvent } from './CalendarEvent';
 import { CalendarModal } from './CalendarModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { uiOpenModal } from '../../actions/ui';
-import { eventClearActiveEvent, eventSetActive } from '../../actions/events';
+import {
+  eventClearActiveEvent,
+  eventSetActive,
+  eventStartLoading,
+} from '../../actions/events';
 import { AddNewFab } from '../ui/AddNewFab';
 import { DeleteEventFab } from '../ui/DeleteEventFab';
 
@@ -27,6 +31,13 @@ export const CalendarScreen = () => {
   const [lastView, setLastView] = useState(
     localStorage.getItem('lastView') || 'month'
   );
+
+  /**
+   * Call the load events action
+   */
+  useEffect(() => {
+    dispatch(eventStartLoading());
+  }, [dispatch]);
 
   /**
    * Function to open a CalendarModal component on doubleclick
