@@ -30,7 +30,7 @@ export const startLogin = (email, password) => {
 };
 
 /**
- * Function to fetch the register endpoint
+ * Function to fetch the register endpoint and save the session token in local Storage
  * @param {String} email
  * @param {String} password
  * @param {String} name
@@ -61,6 +61,10 @@ export const startRegister = (email, password, name) => {
   };
 };
 
+/**
+ * Function to fetch the auth/renew endpoint and save the new session token in local Storage
+ * @returns
+ */
 export const startChecking = () => {
   return async (dispatch) => {
     const resp = await fetchToken('auth/renew');
@@ -90,3 +94,12 @@ const login = (user) => ({
   type: types.authLogin,
   payload: user,
 });
+
+export const startLogout = () => {
+  return (dispatch) => {
+    localStorage.clear();
+    dispatch(logout());
+  };
+};
+
+const logout = () => ({ type: types.authLogout });
